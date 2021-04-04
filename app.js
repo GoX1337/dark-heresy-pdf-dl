@@ -7,11 +7,15 @@ const serverUrl = "https://www.fillinsheets.com/pdfs/DarkHeresy/";
 const pdfFolderName = "dh-pdf";
 
 let downloadPdfFile = async (serverUrl, pdfUrl) => {
-    const downloadedFileStream = await axios({ url: serverUrl+pdfUrl, method: 'GET', responseType: 'stream' });
-    const filename = pdfUrl.replace("?path=&download=", "").replace(/%20/g, "_");
-    const localFilePath = path.resolve(__dirname, pdfFolderName, filename);
-    await downloadedFileStream.data.pipe(fs.createWriteStream(localFilePath));
-    console.log("Downloaded " + filename);
+    const filename = pdfUrl.replace("?path=&download=", "").replace(/%20/g, "_").replace(/%27/g, "");
+    try{
+        const downloadedFileStream = await axios({ url: serverUrl+pdfUrl, method: 'GET', responseType: 'stream' });
+        const localFilePath = path.resolve(__dirname, pdfFolderName, filename);
+        await downloadedFileStream.data.pipe(fs.createWriteStream(localFilePath));
+        console.log("Downloaded " + filename);
+    } catch(e){
+        console.error("Failed to download " + filename, e);
+    }
 }
 
 (async () => {
